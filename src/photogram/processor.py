@@ -80,7 +80,7 @@ class PhotogrammetryProcessor:
         # Import images
         print("  - Importing images...")
         image_reader_options = pycolmap.ImageReaderOptions()
-        image_reader_options.camera_mode = pycolmap.CameraMode.AUTO
+        # camera_model: let COLMAP infer from EXIF (default behavior)
         pycolmap.import_images(db, str(image_folder), image_reader_options)
 
         # Extract features
