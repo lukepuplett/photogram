@@ -230,19 +230,13 @@ class PhotogrammetryProcessor:
         elif format_type == 'pcd':
             o3d.io.write_point_cloud(str(output_path), pcd)
         elif format_type == 'obj':
-            # For OBJ, use Poisson surface reconstruction for proper mesh
-            print("  - Estimating normals...")
+            # For sparse SfM output, export as point cloud with colors
+            # This preserves the actual reconstruction without wrapping artifacts
+            print("  - Estimating normals for better shading...")
             if not pcd.has_normals():
                 pcd.estimate_normals()
 
-            print("  - Poisson surface reconstruction...")
-            mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(
-                pcd, depth=9
-            )
-
-            # Remove low-density vertices (outliers)
-            vertices_to_remove = densities < np.quantile(densities, 0.1)
-            mesh.remove_vertices_by_mask(vertices_to_remove)
-
-            o3d.io.write_triangle_mesh(str(output_path), mesh)
-            print(f"  - Mesh created with {len(mesh.vertices)} vertices and {len(mesh.triangles)} triangles")
+            # Export as PLY with vertex colors and normals
+            ply_path = output_path.with_suffix('.ply')
+            o3d.io.write_point_cloud(str(ply_path), pcd)
+            print(f"  - Exported {len(pcd.points)} colored points to {ply_path}")
