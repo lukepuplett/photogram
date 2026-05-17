@@ -78,6 +78,10 @@ class PhotogrammetryProcessor:
         db_path = str(db_path)
         sparse_path = str(sparse_path)
 
+        # Create empty database first
+        db = pycolmap.Database.open(db_path)
+        db.close()
+
         # Import images (takes database path, not Database object)
         print("  - Importing images...")
         pycolmap.import_images(
