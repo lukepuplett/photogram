@@ -74,8 +74,8 @@ class PhotogrammetryProcessor:
         """
         print("Step 1-3: Running SfM reconstruction (feature extraction → matching → mapping)...")
 
-        # Create database
-        db = pycolmap.Database(str(db_path))
+        # Create/open database
+        db = pycolmap.Database.open(str(db_path))
 
         # Import images
         print("  - Importing images...")
