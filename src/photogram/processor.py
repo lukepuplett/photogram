@@ -74,15 +74,38 @@ class PhotogrammetryProcessor:
         """
         print("Step 1-3: Running SfM reconstruction (feature extraction → matching → mapping)...")
 
-        # Use pycolmap's automatic reconstruction pipeline
-        pycolmap.automatic_reconstruction(
-            image_folder,
-            sparse_path,
-            database_path=db_path,
-            image_list_path=None,
-            verbose=True,
-            max_image_size=self.max_image_size,
-        )
+        # Create database
+        db = pycolmap.Database(str(db_path))
+
+        # Import images
+        print("  - Importing images...")
+        image_reader_options = pycolmap.ImageReaderOptions()
+        image_reader_options.camera_mode = pycolmap.CameraMode.AUTO
+        pycolmap.import_images(db, str(image_folder), image_reader_options)
+
+        # Extract features
+        print("  - Extracting features...")
+        feat_extractor_options = pycolmap.FeatureExtractionOptions()
+        feat_extractor_options.use_gpu = False
+        feat_extractor_options.max_image_size = self.max_image_size
+        pycolmap.extract_features(db, str(image_folder), options=feat_extractor_options)
+
+        # Match features
+        print("  - Matching features...")
+        matcher_options = pycolmap.FeatureMatchingOptions()
+        pycolmap.match_exhaustive(db, options=matcher_options)
+
+        # Geometric verification
+        print("  - Geometric verification...")
+        geometric_options = pycolmap.GeometricVerifierOptions()
+        pycolmap.geometric_verification(db, options=geometric_options)
+
+        # Incremental mapping
+        print("  - Running incremental mapping...")
+        mapper_options = pycolmap.IncrementalMapperOptions()
+        maps = pycolmap.incremental_mapping(db, str(image_folder), str(sparse_path), mapper_options)
+
+        db.close()
 
     def _run_dense_reconstruction(self, image_folder: Path, sparse_path: Path, tmpdir: Path):
         """
