@@ -95,12 +95,12 @@ class PhotogrammetryProcessor:
         feat_extractor_options = pycolmap.FeatureExtractionOptions()
         feat_extractor_options.use_gpu = False
         feat_extractor_options.max_image_size = self.max_image_size
-        pycolmap.extract_features(db_path, image_folder, options=feat_extractor_options)
+        pycolmap.extract_features(db_path, image_folder, extraction_options=feat_extractor_options)
 
         # Match features
         print("  - Matching features...")
         matcher_options = pycolmap.FeatureMatchingOptions()
-        pycolmap.match_exhaustive(db_path, options=matcher_options)
+        pycolmap.match_exhaustive(db_path, matching_options=matcher_options)
 
         # Geometric verification
         print("  - Geometric verification...")
