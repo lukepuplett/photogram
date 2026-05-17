@@ -105,7 +105,7 @@ class PhotogrammetryProcessor:
         # Geometric verification
         print("  - Geometric verification...")
         geometric_options = pycolmap.GeometricVerifierOptions()
-        pycolmap.geometric_verification(db_path, options=geometric_options)
+        pycolmap.geometric_verification(db_path, verifier_options=geometric_options)
 
         # Incremental mapping
         print("  - Running incremental mapping...")
