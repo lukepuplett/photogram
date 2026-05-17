@@ -109,7 +109,7 @@ class PhotogrammetryProcessor:
 
         # Incremental mapping
         print("  - Running incremental mapping...")
-        mapper_options = pycolmap.IncrementalMapperOptions()
+        mapper_options = pycolmap.IncrementalPipelineOptions()
         maps = pycolmap.incremental_mapping(db_path, image_folder, sparse_path, mapper_options)
 
     def _run_dense_reconstruction(self, image_folder: Path, sparse_path: Path, tmpdir: Path):
