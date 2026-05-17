@@ -230,10 +230,23 @@ class PhotogrammetryProcessor:
         elif format_type == 'pcd':
             o3d.io.write_point_cloud(str(output_path), pcd)
         elif format_type == 'obj':
-            # Convert to mesh for OBJ export
+            # For OBJ, try to create a mesh
             print("  - Reconstructing mesh from point cloud...")
-            mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(
-                pcd,
-                o3d.utility.DoubleVector([0.005, 0.01, 0.02, 0.04])
-            )
-            o3d.io.write_triangle_mesh(str(output_path), mesh)
+
+            # Estimate normals if not present
+            if not pcd.has_normals():
+                pcd.estimate_normals()
+
+            # Try ball pivoting reconstruction
+            try:
+                mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(
+                    pcd,
+                    o3d.utility.DoubleVector([0.005, 0.01, 0.02, 0.04])
+                )
+                o3d.io.write_triangle_mesh(str(output_path), mesh)
+            except Exception as e:
+                # Fallback: export as PLY with normals
+                print(f"  - Mesh reconstruction failed ({str(e)[:50]}...), exporting as PLY instead")
+                ply_path = output_path.with_suffix('.ply')
+                o3d.io.write_point_cloud(str(ply_path), pcd)
+                print(f"  - Exported to {ply_path}")
